@@ -2,16 +2,12 @@
 
 Train and use machine learning models directly from CSV files via a simple web interface. Supports algorithm selection, target column picking, and real-time prediction.
 
----
-
 ## Tech Stack
 
 - ⚙️ Backend: [FastAPI](https://fastapi.tiangolo.com/)
 - 🧠 ML: Scikit-learn
 - 🌐 Frontend: [Next.js](https://nextjs.org/) + TypeScript + Tailwind CSS
 - 🔌 Communication: REST API (Axios)
-
----
 
 ## How to run locally
 
@@ -54,3 +50,22 @@ npm run dev
 Frontend runs at `http://localhost:3000`
 
 > Make sure the backend is running when using the UI
+
+## Features
+
+- Upload CSV File
+- Choose target column
+- Select Algorithm
+- Train model and view accuracy
+- Input test values and get predictions
+
+## In-progress
+
+- Support for textual dataset
+- Classification support along with the already exisiting regression
+- Auto test input suggestions
+- Multiple model evaluation metrics
+
+## Contributions
+
+Pull requests welcome! If you'd like to contribute to classification support or add new ML models, feel free to fork and PR.

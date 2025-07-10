@@ -7,10 +7,32 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [target, setTarget] = useState("");
+  const [features, setFeatures] = useState<string[]>([]);
+  const [task, setTask] = useState("regression");
   const [algo, setAlgo] = useState("random_forest");
   const [testInput, setTestInput] = useState("");
   const [prediction, setPrediction] = useState<string | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
+
+  const regressionAlgorithms = [
+    { value: "random_forest", label: "Random Forest" },
+    { value: "gradient_boosting", label: "Gradient Boosting" },
+    { value: "linear_regression", label: "Linear Regression" },
+    { value: "knn", label: "K-Nearest Neighbors" },
+    { value: "svm", label: "Support Vector Machine" },
+  ];
+
+  const classificationAlgorithms = [
+    { value: "random_forest", label: "Random Forest" },
+    { value: "gradient_boosting", label: "Gradient Boosting" },
+    { value: "logistic_regression", label: "Logistic Regression" },
+    { value: "knn", label: "K-Nearest Neighbors" },
+    { value: "svm", label: "Support Vector Machine" },
+    { value: "naive_bayes", label: "Naive Bayes" },
+  ];
+
+  const algorithmOptions =
+    task === "classification" ? classificationAlgorithms : regressionAlgorithms;
 
   const backendUrl = "http://localhost:8000";
 
@@ -36,17 +58,19 @@ export default function Home() {
       const res = await axios.post(`${backendUrl}/train`, {
         target_column: target,
         algorithm: algo,
+        task: task,
       });
 
       if (res.data.accuracy !== undefined) {
         setAccuracy(res.data.accuracy);
+        setFeatures(res.data.features);
         alert(res.data.message);
       } else {
         alert(res.data.error);
       }
     } catch (error) {
       console.error("Model training failed", error);
-      alert("Error during training");
+      alert(error);
     }
   };
 
@@ -105,6 +129,22 @@ export default function Home() {
           </select>
 
           <label className="block mt-4 mb-1 font-medium text-orange-300">
+            Task Type:
+          </label>
+          <select
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+            className="w-full border p-2"
+          >
+            <option className="bg-slate-600 text-white" value="regression">
+              Regression
+            </option>
+            <option className="bg-slate-600 text-white" value="classification">
+              Classification
+            </option>
+          </select>
+
+          <label className="block mt-4 mb-1 font-medium text-orange-300">
             Algorithm:
           </label>
           <select
@@ -112,21 +152,15 @@ export default function Home() {
             onChange={(e) => setAlgo(e.target.value)}
             className="w-full border p-2"
           >
-            <option className="bg-slate-600 text-white" value="random_forest">
-              Random Forest
-            </option>
-            <option
-              className="bg-slate-600 text-white"
-              value="gradient_boosting"
-            >
-              Gradient Boosting
-            </option>
-            <option
-              className="bg-slate-600 text-white"
-              value="linear_regression"
-            >
-              Linear Regression
-            </option>
+            {algorithmOptions.map((algorithm) => (
+              <option
+                className="bg-slate-600 text-white"
+                key={algorithm.value}
+                value={algorithm.value}
+              >
+                {algorithm.label}
+              </option>
+            ))}
           </select>
 
           <button
@@ -140,18 +174,30 @@ export default function Home() {
 
       {accuracy !== null && (
         <p className="mt-2 text-emerald-300 font-semibold">
-          Model Accuracy (R^2 Score): {accuracy.toFixed(4)}
+          {task === "classification"
+            ? `Model Accuracy: ${(accuracy * 100).toFixed(2)}%`
+            : `R² Score: ${accuracy.toFixed(4)}`}
         </p>
       )}
 
       {target && (
         <div className="mt-6">
+          <div className="flex flex-wrap gap-2">
+            {features.map((data) => (
+              <p
+                className="bg-blue-400 text-slate-800 font-semibold p-2 rounded-xl text-xs"
+                key={data}
+              >
+                {data}
+              </p>
+            ))}
+          </div>
           <input
             type="text"
             placeholder="Enter test input (comma separated)"
             value={testInput}
             onChange={(e) => setTestInput(e.target.value)}
-            className="border px-3 py-2 w-full"
+            className="border px-3 py-2 w-full mt-4"
           />
           <button
             onClick={handlePredict}

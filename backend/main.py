@@ -23,6 +23,7 @@ class PredictInput(BaseModel):
 class TrainRequest(BaseModel):
     target_column: str
     algorithm: str
+    task: str
 
 
 @app.post("/upload")
@@ -39,8 +40,14 @@ async def train(data: TrainRequest):
         return {"error": "No CSV uploaded"}
 
     try:
-        model, acc = train_model(df_cache, data.target_column, data.algorithm)
-        return {"message": f"Model trained using {data.algorithm}", "accuracy": acc}
+        model, acc, features = train_model(
+            df_cache, data.target_column, data.algorithm, data.task
+        )
+        return {
+            "message": f"Model trained using {data.algorithm}",
+            "accuracy": acc,
+            "features": features,
+        }
     except ValueError as e:
         return {"error": str(e)}
 
